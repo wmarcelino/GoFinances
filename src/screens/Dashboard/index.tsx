@@ -16,6 +16,7 @@ import {
   Title,
   Transactions,
   TransactionsList,
+  LogoutButton,
 } from "./styles";
 
 import { data } from "./types";
@@ -38,7 +39,9 @@ export const Dashboard = (): JSX.Element => {
               <ProfileUsername>Wesley </ProfileUsername>
             </ProfileGreetingContainer>
           </ProfileContainer>
-          <Icon name="power" />
+          <LogoutButton onPress={() => {}}>
+            <Icon name="power" />
+          </LogoutButton>
         </HeaderContainer>
       </Header>
       <HighlightCards>

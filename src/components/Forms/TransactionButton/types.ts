@@ -1,5 +1,5 @@
-import { TouchableOpacityProps } from "react-native";
-export interface Props extends TouchableOpacityProps {
+import { RectButtonProps } from "react-native-gesture-handler";
+export interface Props extends RectButtonProps {
   title: string;
   type: "up" | "down";
   isActive: boolean;
