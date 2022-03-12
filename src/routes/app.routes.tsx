@@ -6,7 +6,13 @@ import { Register } from "../screens/Register";
 import { useTheme } from "styled-components";
 import { MaterialIcons } from "@expo/vector-icons";
 
-const { Navigator, Screen } = createBottomTabNavigator();
+export type AppRoutesParamList = {
+  Listagem: undefined;
+  Cadastrar: undefined;
+  Resumo: undefined;
+};
+
+const { Navigator, Screen } = createBottomTabNavigator<AppRoutesParamList>();
 
 export const AppRoutes = (): JSX.Element => {
   const theme = useTheme();

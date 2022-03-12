@@ -1,17 +1,12 @@
-export interface Category {
-  name: string;
-  icon: string;
-}
-
 export interface Props {
   data: TransactionCardData;
 }
 
 export interface TransactionCardData {
   type: "negative" | "positive";
-  title: string;
+  name: string;
   amount: string;
-  category: Category;
+  category: string;
   date: string;
 }
 

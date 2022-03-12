@@ -1,9 +1,10 @@
-import React from "react";
-import { getBottomSpace } from "react-native-iphone-x-helper";
+import React, { useCallback, useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { HighlightCard } from "../../components/HighlightCard";
 import { TransactionCard } from "../../components/TransactionCard";
 import { Icon, ProfileGreetingContainer, ProfilePhoto } from "./styles";
 
+import { useFocusEffect } from "@react-navigation/native";
 import {
   Container,
   Header,
@@ -18,10 +19,59 @@ import {
   TransactionsList,
   LogoutButton,
 } from "./styles";
-
-import { data } from "./types";
+import { DataListProps } from "./types";
+import { collectionKey } from "../Register";
 
 export const Dashboard = (): JSX.Element => {
+  const [data, setData] = useState<DataListProps[]>([]);
+
+  const loadTransactions = async () => {
+    const response = await AsyncStorage.getItem(collectionKey);
+
+    const transactions = response ? JSON.parse(response) : [];
+
+    console.log("transactions", transactions);
+
+    const transactionsFormatted: DataListProps[] = transactions.map(
+      (item: DataListProps) => {
+        const amount = Number(item.amount).toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        });
+        const date = new Date(item.date);
+        const dateFormatted = Intl.DateTimeFormat("pt-BR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "2-digit",
+        }).format(date);
+
+        return {
+          id: item.id,
+          name: item.name,
+          amount,
+          type: item.type,
+          category: item.category,
+          date: dateFormatted,
+        };
+      }
+    );
+
+    setData(transactionsFormatted);
+  };
+
+  /**
+   *  Responsável por carregar a listagem de transacoes.
+   */
+  useEffect(() => {
+    loadTransactions();
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadTransactions();
+    }, [])
+  );
+
   return (
     <Container>
       <Header>
