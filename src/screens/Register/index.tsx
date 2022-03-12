@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Keyboard, Modal, TouchableWithoutFeedback, Alert } from "react-native";
 import { Button } from "../../components/Forms/Button";
 import { CategorySelectButton } from "../../components/Forms/CategorySelectButton";
@@ -7,6 +7,8 @@ import { TransactionButton } from "../../components/Forms/TransactionButton";
 import { CategorySelect } from "../CategorySelect";
 import { Category } from "../CategorySelect/types";
 import { useForm } from "react-hook-form";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import * as Yup from "yup";
 
@@ -20,6 +22,8 @@ import {
   Fields,
   TransactionTypes,
 } from "./styles";
+
+const collectionKey = "@gofinances:transactions";
 
 const schema = Yup.object().shape({
   name: Yup.string().required("Nome é obrigatório"),
@@ -53,7 +57,9 @@ export const Register = (): JSX.Element => {
     setCategory(category);
   };
 
-  const handleRegister = (form: FormData) => {
+  const handleRegister = async (form: FormData) => {
+    console.log("teste teste");
+
     if (!transactionType) {
       return Alert.alert("Selecione o tipo da transação");
     }
@@ -68,7 +74,13 @@ export const Register = (): JSX.Element => {
       transactionType,
       category: category.key,
     };
-    console.log(data);
+
+    try {
+      await AsyncStorage.setItem(collectionKey, JSON.stringify(data));
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Nãp foi possível salvar");
+    }
   };
 
   const {
@@ -78,6 +90,16 @@ export const Register = (): JSX.Element => {
   } = useForm({
     resolver: yupResolver(schema),
   });
+
+  useEffect(() => {
+    const loadData = async () => {
+      const data = await AsyncStorage.getItem(collectionKey);
+      console.log("data", JSON.stringify(data));
+    };
+
+    loadData();
+  }, []);
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <Container>
@@ -120,7 +142,7 @@ export const Register = (): JSX.Element => {
               onPress={handleOpenSelectCategory}
             />
           </Fields>
-          <Button title="Enviar" onPress={handleSubmit(() => handleRegister)} />
+          <Button title="Enviar" onPress={handleSubmit(handleRegister)} />
         </Form>
         <Modal visible={categoryModalOpen}>
           <CategorySelect
