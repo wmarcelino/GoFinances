@@ -6,7 +6,7 @@ export interface DataListProps extends TransactionCardData {
 
 export interface HightLightProps {
   total: string;
-  LastTransaction: Date | undefined;
+  LastTransaction: string;
 }
 export interface HightLightData {
   entries: HightLightProps;
@@ -17,14 +17,14 @@ export interface HightLightData {
 export const initialHightLightData: HightLightData = {
   entries: {
     total: "0.00",
-    LastTransaction: undefined,
+    LastTransaction: "",
   },
   expensives: {
     total: "0.00",
-    LastTransaction: undefined,
+    LastTransaction: "",
   },
   total: {
     total: "0.00",
-    LastTransaction: undefined,
+    LastTransaction: "",
   },
 };

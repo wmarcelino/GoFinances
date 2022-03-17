@@ -2,7 +2,12 @@ import React, { useCallback, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { HighlightCard } from "../../components/HighlightCard";
 import { TransactionCard } from "../../components/TransactionCard";
-import { Icon, ProfileGreetingContainer, ProfilePhoto } from "./styles";
+import {
+  Icon,
+  LoadContainer,
+  ProfileGreetingContainer,
+  ProfilePhoto,
+} from "./styles";
 
 import { useFocusEffect } from "@react-navigation/native";
 import {
@@ -19,15 +24,20 @@ import {
   TransactionsList,
   LogoutButton,
 } from "./styles";
+
+import { useTheme } from "styled-components";
 import { DataListProps, HightLightData, initialHightLightData } from "./types";
 import { collectionKey } from "../Register";
+import { ActivityIndicator } from "react-native";
 
 export const Dashboard = (): JSX.Element => {
+  const [isLoading, setIsLoading] = useState(true);
   const [transactions, setTransactions] = useState<DataListProps[]>([]);
   const [hightLightData, setHightLataData] = useState<HightLightData>(
     initialHightLightData
   );
 
+  const theme = useTheme();
   const loadTransactions = async () => {
     const response = await AsyncStorage.getItem(collectionKey);
 
@@ -35,8 +45,6 @@ export const Dashboard = (): JSX.Element => {
 
     let entriesTotal = 0;
     let expensiveTotal = 0;
-
-    console.log("transactions", transactions);
 
     const transactionsFormatted: DataListProps[] = transactions.map(
       (item: DataListProps) => {
@@ -68,30 +76,76 @@ export const Dashboard = (): JSX.Element => {
       }
     );
 
+    /**
+     * TODO: Transformar código abaixo em uma funcao
+     * TODO: Colocar mes por extenso
+     */
+    const lastTransactionsEntriesFormatted = Intl.DateTimeFormat("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "2-digit",
+    }).format(
+      new Date(
+        Math.max.apply(
+          Math,
+          transactions
+            .filter(
+              (transaction: DataListProps) => transaction.type === "positive"
+            )
+            .map((transaction: DataListProps) =>
+              new Date(transaction.date).getTime()
+            )
+        )
+      )
+    );
+
+    const lastTransactionsExpansivesFormatted = Intl.DateTimeFormat("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "2-digit",
+    }).format(
+      new Date(
+        Math.max.apply(
+          Math,
+          transactions
+            .filter(
+              (transaction: DataListProps) => transaction.type === "negative"
+            )
+            .map((transaction: DataListProps) =>
+              new Date(transaction.date).getTime()
+            )
+        )
+      )
+    );
     setHightLataData({
       entries: {
         total: entriesTotal.toLocaleString("pt-BR", {
           style: "currency",
           currency: "BRL",
         }),
-        LastTransaction: undefined,
+        LastTransaction:
+          "Última entrada dia " + lastTransactionsEntriesFormatted,
       },
       expensives: {
         total: expensiveTotal.toLocaleString("pt-BR", {
           style: "currency",
           currency: "BRL",
         }),
-        LastTransaction: undefined,
+        LastTransaction:
+          "Última entrada dia " + lastTransactionsExpansivesFormatted,
       },
       total: {
         total: (entriesTotal - expensiveTotal).toLocaleString("pt-BR", {
           style: "currency",
           currency: "BRL",
         }),
-        LastTransaction: undefined,
+        LastTransaction:
+          "Última entrada dia " + lastTransactionsExpansivesFormatted,
       },
     });
     setTransactions(transactionsFormatted);
+
+    setIsLoading(false);
   };
 
   /**
@@ -106,6 +160,14 @@ export const Dashboard = (): JSX.Element => {
       loadTransactions();
     }, [])
   );
+
+  if (isLoading) {
+    return (
+      <LoadContainer>
+        <ActivityIndicator color={theme.colors.primary} size="large" />
+      </LoadContainer>
+    );
+  }
 
   return (
     <Container>
@@ -133,19 +195,19 @@ export const Dashboard = (): JSX.Element => {
         <HighlightCard
           title="Entradas"
           amount={hightLightData.entries.total}
-          lastTransaction="Última entrada dia 30 de Dezembro"
+          lastTransaction={hightLightData.entries.LastTransaction}
           type="up"
         />
         <HighlightCard
           title="Saidas"
           amount={hightLightData.expensives.total}
-          lastTransaction="Última saida dia 04 de Dezembro"
+          lastTransaction={hightLightData.expensives.LastTransaction}
           type="down"
         />
         <HighlightCard
           title="Total"
           amount={hightLightData.total.total}
-          lastTransaction="01 à 30 de Dezembro"
+          lastTransaction={hightLightData.total.LastTransaction}
           type="total"
         />
       </HighlightCards>
