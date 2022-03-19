@@ -1,6 +1,8 @@
 export interface CategoryData {
   key: string;
   name: string;
-  amount: string;
+  amountFormatted: string;
+  amount: number;
   color: string;
+  percent: string;
 }
