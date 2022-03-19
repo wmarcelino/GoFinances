@@ -5,6 +5,7 @@ import { Dashboard } from "../screens/Dashboard";
 import { Register } from "../screens/Register";
 import { useTheme } from "styled-components";
 import { MaterialIcons } from "@expo/vector-icons";
+import { Resume } from "../screens/Resume";
 
 export type AppRoutesParamList = {
   Listagem: undefined;
@@ -54,7 +55,7 @@ export const AppRoutes = (): JSX.Element => {
       />
       <Screen
         name="Resumo"
-        component={Register}
+        component={Resume}
         options={{
           tabBarIcon: ({ size, color }) => (
             <MaterialIcons name="pie-chart" size={size} color={color} />
